@@ -16,7 +16,7 @@ const parseDateToString = (date) => {
 
 const readData = async (reader, protocol, withPhoto, callback) => {
   let totalStep = 4
-  
+
   if(withPhoto) {
     totalStep = 4 + adpu.CMD_GET_PHOTO.length
   }
@@ -41,7 +41,7 @@ const readData = async (reader, protocol, withPhoto, callback) => {
 
     let data = {}
     data.citizenId = citizenId
-    
+
     const personalInfo = rawPersonalInfo.split(' ').filter(o => o !== '')
     data.titleTH = personalInfo[0]
     data.firstNameTH = personalInfo[1]
@@ -49,7 +49,7 @@ const readData = async (reader, protocol, withPhoto, callback) => {
     data.titleEN = personalInfo[3]
     data.firstNameEN = personalInfo[4]
     data.lastNameEN = personalInfo[5]
-    
+
     const tempBirthday = personalInfo[6].slice(0, -1)
     data.birthday = parseDateToString(tempBirthday)
 
@@ -60,11 +60,19 @@ const readData = async (reader, protocol, withPhoto, callback) => {
       data.gender = 'female'
     }
     else {
-      data.gender = 'other' 
+      data.gender = 'other'
     }
 
-    const tempAddress = rawAddress.split(' ').filter(o => o !== '')
-    data.address = tempAddress.join(' ')
+    const tempAddress = rawAddress.split(' ')
+    data.address = tempAddress.filter(o => o !== '').join(' ')
+    data.addressNo = tempAddress[0]
+    data.addressMu = tempAddress.slice(1, 3).join(' ')
+    data.addressRoad = tempAddress[3]
+    data.addressTrok = tempAddress[4]
+    data.addressSoi = tempAddress[5]
+    data.subdistrict = tempAddress[6]
+    data.district = tempAddress[7]
+    data.province = tempAddress[8]
 
     data.issue = parseDateToString(rawIssueExpire.slice(0, 8))
     data.expire = parseDateToString(rawIssueExpire.slice(8, 16))
@@ -77,9 +85,9 @@ const readData = async (reader, protocol, withPhoto, callback) => {
       const encodedData = datauri.format('.jpg', rawPhoto)
       data.photo = encodedData.content
     }
-    
+
     callback({ status: STATUS.COMPLETE, obj: data})
-  } 
+  }
   catch(e) {
     callback({ status: STATUS.ERROR, obj: e})
   }
